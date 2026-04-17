@@ -1,0 +1,34 @@
+# --- Dependencies ---
+node_modules/
+
+# --- Power BI Visuals (pbiviz) Build Junk ---
+.tmp/
+.pbiviz/
+# Ignore webpack reports but keep the source logic
+webpack.statistics.dev.html
+webpack.statistics.prod.html
+# Ignore the PBIVIZ certificate files
+powerbiVisualsCertificate.pfx
+powerbiVisualsCertificate.cer
+powerbiVisualsCertificate.pvk
+
+# --- Compiled Output ---
+# By default, we ignore dist/ but we make an exception 
+# so users can download your visual directly.
+dist/*
+!dist/*.pbiviz
+
+# --- Editor & OS Junk ---
+.vscode/
+.DS_Store
+Thumbs.db
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# --- Logs ---
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

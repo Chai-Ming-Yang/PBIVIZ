@@ -1,0 +1,17 @@
+{
+		"version": "2.0.0.0",
+		"author": {"name":"Chai Ming Yang","email":"tsuyoku2024@gmail.com"},
+		"resources": [
+			{
+				"resourceId": "rId0",
+				"sourceType": 5,
+				"file": "resources/Duval_Triangle_Visual.pbiviz.json"
+			}
+		],
+		"visual": {"name":"Duval_Triangle_Visual","displayName":"Duval Triangle","guid":"Duval_Triangle_Visual","visualClassName":"Visual","version":"2.0.0.0","description":"Power BI Visual for Duval Triangle","supportUrl":"https://github.com/chai-ming-yang","gitHubUrl":"https://github.com/chai-ming-yang"},
+		"metadata": {
+			"pbivizjson": {
+				"resourceId": "rId0"
+			}
+		}
+	}

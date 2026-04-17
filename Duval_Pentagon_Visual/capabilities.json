@@ -1,0 +1,102 @@
+{
+    "dataRoles": [
+        {
+            "displayName": "Date",
+            "name": "date",
+            "kind": "Grouping"
+        },
+        {
+            "displayName": "Methane (CH4)",
+            "name": "ch4",
+            "kind": "Measure"
+        },
+        {
+            "displayName": "Ethylene (C2H4)",
+            "name": "c2h4",
+            "kind": "Measure"
+        },
+        {
+            "displayName": "Acetylene (C2H2)",
+            "name": "c2h2",
+            "kind": "Measure"
+        },
+        {
+            "displayName": "Hydrogen (H2)",
+            "name": "h2",
+            "kind": "Measure"
+        },
+        {
+            "displayName": "Ethane (C2H6)",
+            "name": "c2h6",
+            "kind": "Measure"
+        }
+    ],
+    "objects": {
+        "legendText": {
+            "displayName": "Legend",
+            "properties": {
+                "show": { "displayName": "Show Legend", "type": { "bool": true } },
+                "PD_text": { "displayName": "PD Label", "type": { "text": true } },
+                "D1_text": { "displayName": "D1 Label", "type": { "text": true } },
+                "D2_text": { "displayName": "D2 Label", "type": { "text": true } },
+                "T1_text": { "displayName": "T1 Label", "type": { "text": true } },
+                "T2_text": { "displayName": "T2 Label", "type": { "text": true } },
+                "T3_text": { "displayName": "T3 Label", "type": { "text": true } },
+                "T3-H_text": { "displayName": "T3-H Label", "type": { "text": true } },
+                "C_text": { "displayName": "C Label", "type": { "text": true } },
+                "O_text": { "displayName": "O Label", "type": { "text": true } },
+                "S_text": { "displayName": "S Label", "type": { "text": true } }
+            }
+        },
+        "regionColors": {
+            "displayName": "Segments",
+            "properties": {
+                "transparency": { "displayName": "Transparency (%)", "type": { "numeric": true } },
+                "PD": { "displayName": "PD Color", "type": { "fill": { "solid": { "color": true } } } },
+                "D1": { "displayName": "D1 Color", "type": { "fill": { "solid": { "color": true } } } },
+                "D2": { "displayName": "D2 Color", "type": { "fill": { "solid": { "color": true } } } },
+                "T1": { "displayName": "T1 Color", "type": { "fill": { "solid": { "color": true } } } },
+                "T2": { "displayName": "T2 Color", "type": { "fill": { "solid": { "color": true } } } },
+                "T3": { "displayName": "T3 Color", "type": { "fill": { "solid": { "color": true } } } },
+                "T3-H": { "displayName": "T3-H Color", "type": { "fill": { "solid": { "color": true } } } },
+                "C": { "displayName": "C Color", "type": { "fill": { "solid": { "color": true } } } },
+                "O": { "displayName": "O Color", "type": { "fill": { "solid": { "color": true } } } },
+                "S": { "displayName": "S Color", "type": { "fill": { "solid": { "color": true } } } }
+            }
+        },
+        "pathSettings": {
+            "displayName": "Connector",
+            "properties": {
+                "show": { "displayName": "Show Connector", "type": { "bool": true } },
+                "color": { "displayName": "Line Color", "type": { "fill": { "solid": { "color": true } } } },
+                "thickness": { "displayName": "Line Thickness (px)", "type": { "numeric": true } }
+            }
+        },
+        "pointSettings": {
+            "displayName": "Data Points",
+            "properties": {
+                "latestColor": { "displayName": "Latest Point Color", "type": { "fill": { "solid": { "color": true } } } },
+                "latestSize": { "displayName": "Latest Point Size", "type": { "numeric": true } },
+                "otherColor": { "displayName": "Other Points Color", "type": { "fill": { "solid": { "color": true } } } },
+                "otherSize": { "displayName": "Other Points Size", "type": { "numeric": true } }
+            }
+        }
+    },
+    "dataViewMappings": [
+        {
+            "table": {
+                "rows": {
+                    "select": [
+                        { "for": { "in": "date" } },
+                        { "for": { "in": "ch4" } },
+                        { "for": { "in": "c2h4" } },
+                        { "for": { "in": "c2h2" } },
+                        { "for": { "in": "h2" } },
+                        { "for": { "in": "c2h6" } }
+                    ]
+                }
+            }
+        }
+    ],
+    "privileges": []
+}
