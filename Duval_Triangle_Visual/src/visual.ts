@@ -576,6 +576,18 @@ export class Visual implements IVisual {
                     valDiv.textContent = `${axis.label.replace(/[^A-Za-z0-9₂₄₆]/g, '').trim()}: ${normalizedVal}%`;
                     this.tooltip.appendChild(valDiv);
                 });
+
+                if (dp.extraTooltips && dp.extraTooltips.length > 0) {
+                    this.tooltip.appendChild(document.createElement("hr"));
+                    dp.extraTooltips.forEach(t => {
+                        const tDiv = document.createElement("div");
+                        const tLabel = document.createElement("b");
+                        tLabel.textContent = `${t.name}: `;
+                        tDiv.appendChild(tLabel);
+                        tDiv.appendChild(document.createTextNode(String(t.value)));
+                        this.tooltip.appendChild(tDiv);
+                    });
+                }
             })
                 .on("mousemove", (event: MouseEvent) => {
                     // Get the current dimensions of the tooltip box
