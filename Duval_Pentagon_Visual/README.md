@@ -22,7 +22,7 @@ npm install -g powerbi-visuals-tools
 ### 2. Clone and Navigate
 To work on this specific visual, clone the master repository and navigate to this folder:
 ```bash
-git clone [https://github.com/Chai-Ming-Yang/PBIVIZ.git](https://github.com/Chai-Ming-Yang/PBIVIZ.git)
+git clone https://github.com/Chai-Ming-Yang/PBIVIZ.git
 cd PBIVIZ/Duval_Pentagon_Visual
 ```
 
