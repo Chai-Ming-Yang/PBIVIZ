@@ -4,6 +4,7 @@ import { AxisConfig, GasRecord } from "../config";
 export interface ParsedDataPoint {
     date: Date;
     values: GasRecord;
+    extraTooltips?: { name: string; value: any }[];
 }
 
 /**
@@ -29,15 +30,25 @@ export function parseData(dataView: powerbi.DataView, axes: AxisConfig[]): Parse
     // Prevent rendering if any required axis mapping is missing
     if (axisIndices.some(a => a.index === -1)) return [];
 
+    const tooltipIndices = columns
+        .map((col, idx) => ({ col, idx }))
+        .filter(item => item.col.roles && item.col.roles["tooltips"]);
+
     const data: ParsedDataPoint[] = table.rows.map(row => {
         const values: GasRecord = {};
         axisIndices.forEach(axis => {
             values[axis.key] = Number(row[axis.index]) || 0;
         });
 
+        const extraTooltips = tooltipIndices.map(item => ({
+            name: item.col.displayName as string,
+            value: row[item.idx]
+        }));
+
         return {
             date: new Date(row[dateIndex] as string),
-            values
+            values,
+            extraTooltips
         };
     });
 

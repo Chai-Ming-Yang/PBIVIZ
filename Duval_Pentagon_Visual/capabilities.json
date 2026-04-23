@@ -29,6 +29,11 @@
             "displayName": "Ethane (C2H6)",
             "name": "c2h6",
             "kind": "Measure"
+        },
+        {
+            "displayName": "Tooltips",
+            "name": "tooltips",
+            "kind": "Measure"
         }
     ],
     "objects": {
@@ -92,7 +97,8 @@
                         { "for": { "in": "c2h4" } },
                         { "for": { "in": "c2h2" } },
                         { "for": { "in": "h2" } },
-                        { "for": { "in": "c2h6" } }
+                        { "for": { "in": "c2h6" } },
+                        { "for": { "in": "tooltips" } }
                     ]
                 }
             }
