@@ -5,10 +5,10 @@
 			{
 				"resourceId": "rId0",
 				"sourceType": 5,
-				"file": "resources/Duval_Triangle_Visual.pbiviz.json"
+				"file": "resources/Duval_Triangle_Visual_Sarawak_Energy.pbiviz.json"
 			}
 		],
-		"visual": {"name":"Duval_Triangle_Visual","displayName":"Duval Triangle","guid":"Duval_Triangle_Visual","visualClassName":"Visual","version":"2.0.0.0","description":"Power BI Visual for Duval Triangle","supportUrl":"https://github.com/chai-ming-yang","gitHubUrl":"https://github.com/chai-ming-yang"},
+		"visual": {"name":"Duval_Triangle_Visual","displayName":"Duval Triangle - Sarawak Energy","guid":"Duval_Triangle_Visual_Sarawak_Energy","visualClassName":"Visual","version":"2.0.0.0","description":"Power BI Visual for Duval Triangle","supportUrl":"https://github.com/chai-ming-yang","gitHubUrl":"https://github.com/chai-ming-yang"},
 		"metadata": {
 			"pbivizjson": {
 				"resourceId": "rId0"

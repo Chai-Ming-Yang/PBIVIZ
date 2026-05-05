@@ -1,7 +1,0 @@
-# Power BI Local Build Junk
-.tmp/
-webpack.statistics.*.html
-.pbiviz/
-
-# Local Editor Settings
-.vscode/

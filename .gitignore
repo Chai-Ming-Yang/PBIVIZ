@@ -1,27 +1,31 @@
 # --- Dependencies ---
-node_modules/
+**/node_modules/
 
 # --- Power BI Visuals (pbiviz) Build Junk ---
-.tmp/
-.pbiviz/
+**/.tmp/
+**/.pbiviz/
 # Ignore webpack reports but keep the source logic
-webpack.statistics.dev.html
-webpack.statistics.prod.html
+**/webpack.statistics.dev.html
+**/webpack.statistics.prod.html
 # Ignore the PBIVIZ certificate files
-powerbiVisualsCertificate.pfx
-powerbiVisualsCertificate.cer
-powerbiVisualsCertificate.pvk
+**/powerbiVisualsCertificate.pfx
+**/powerbiVisualsCertificate.cer
+**/powerbiVisualsCertificate.pvk
 
 # --- Compiled Output ---
-# By default, we ignore dist/ but we make an exception 
-# so users can download your visual directly.
-dist/*
-!dist/*.pbiviz
+# Ignore everything in the dist folders...
+**/dist/*
+# ...BUT make an exception so users can download your compiled visual directly.
+!**/dist/*.pbiviz
+
+# --- Simulator E2E Data ---
+# Ignore the generated CSV test files so they don't bloat your GitHub repo
+**/src/tests/output/*.csv
 
 # --- Editor & OS Junk ---
-.vscode/
-.DS_Store
-Thumbs.db
+**/.vscode/
+**/.DS_Store
+**/Thumbs.db
 *.suo
 *.ntvs*
 *.njsproj

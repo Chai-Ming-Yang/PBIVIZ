@@ -1,7 +1,7 @@
 "use strict";
 
 import { formattingSettings } from "powerbi-visuals-utils-formattingmodel";
-import { FAULT_COLORS } from "./config";
+import { FAULT_COLORS } from "./utils/faultSpecifications";
 import FormattingSettingsCard = formattingSettings.Card;
 import FormattingSettingsSlice = formattingSettings.Slice;
 import FormattingSettingsModel = formattingSettings.Model;

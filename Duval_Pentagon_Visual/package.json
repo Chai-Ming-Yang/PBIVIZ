@@ -10,7 +10,9 @@
   "scripts": {
     "pbiviz": "pbiviz",
     "start": "pbiviz start",
-    "package": "pbiviz package",
+    "test": "npm run export-data && jest",
+    "package": "npm run test && pbiviz package",
+    "export-data": "ts-node src/tests/tools/runExport.ts",
     "lint": "npx eslint ."
   },
   "dependencies": {
@@ -20,9 +22,13 @@
     "powerbi-visuals-utils-formattingmodel": "^5.0.0"
   },
   "devDependencies": {
+    "@types/jest": "^30.0.0",
     "@typescript-eslint/eslint-plugin": "^8.8.0",
     "eslint": "^9.11.1",
     "eslint-plugin-powerbi-visuals": "^1.0.0",
+    "jest": "^30.3.0",
+    "ts-jest": "^29.4.9",
+    "ts-node": "^10.9.2",
     "typescript": "5.5.4"
   }
 }

@@ -1,16 +1,27 @@
-import { GasRecord, RegionConfig, FaultType } from "../config";
+import { FaultType } from "./faultSpecifications";
 import { Point } from "./geometry";
+import { FaultSpecificationFactory } from "./faultSpecifications";
 
+/**
+ * Pure Domain Function: Diagnoses transformer faults based on mapped Cartesian coordinates.
+ * Responsibility: Evaluates a mathematical point against predefined geometric boundaries.
+ */
 export function classifyFault(
-    data: GasRecord,
-    regions: RegionConfig[],
+    pentagonId: string,
     coord?: Point
 ): FaultType {
-    for (const region of regions) {
-        // Using .call() to explicitly bind `this` to the RegionConfig object
-        if (region.condition.call(region, data, coord)) {
-            return region.key;
+    
+    // If no mathematical coordinate was provided, we cannot geometrically classify it.
+    if (!coord) return "Unknown";
+
+    const specifications = FaultSpecificationFactory.getSpecificationsForPentagon(pentagonId);
+
+    for (const spec of specifications) {
+        // Evaluate geometric intersection strictly using the specification pattern
+        if (spec.isSatisfiedBy(coord)) {
+            return spec.getFaultType();
         }
     }
+    
     return "Unknown";
 }

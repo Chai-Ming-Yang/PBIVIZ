@@ -1,5 +1,7 @@
 {
     "compilerOptions": {
+        "resolveJsonModule": true,
+        "esModuleInterop": true,
         "allowJs": false,
         "emitDecoratorMetadata": true,
         "experimentalDecorators": true,
@@ -10,6 +12,11 @@
         "moduleResolution": "node16",
         "module": "node16",
         "declaration": true,
+        "types": [
+            "node",
+            "jest"
+        ],
+        "isolatedModules": true,
         "lib": [
             "es2022",
             "dom"
@@ -17,5 +24,8 @@
     },
     "files": [
         "./src/visual.ts"
+    ],
+    "include": [
+        "src/**/*"
     ]
 }

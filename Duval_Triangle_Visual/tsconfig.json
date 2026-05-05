@@ -9,13 +9,21 @@
         "outDir": "./.tmp/build/",
         "moduleResolution": "node16",
         "module": "node16",
+        "types": [
+            "jest",
+            "node"
+        ],
         "declaration": true,
         "lib": [
             "es2022",
             "dom"
-        ]
+        ],
+        "isolatedModules": true
     },
     "files": [
         "./src/visual.ts"
+    ],
+    "include": [
+        "src/**/*"
     ]
 }
