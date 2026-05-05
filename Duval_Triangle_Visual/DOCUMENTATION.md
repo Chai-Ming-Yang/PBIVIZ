@@ -1,42 +1,40 @@
 # Technical Architecture & Engineering Documentation
 
-## 1. Rendering Pipeline (`visual.ts`)
-The visual operates on a structured rendering pipeline driven by D3.js, recalculating and redrawing layers upon every Power BI update cycle.
+## 1. Rendering Pipeline
+The visual operates on a decoupled, mediator-driven rendering pipeline. The main `Visual` class (`src/visual.ts`) orchestrates updates between dedicated UI/Viewport controllers and specialized rendering classes, triggering recalculations during each Power BI update cycle.
 
 ### Initialization & DOM Structure
-The visual separates the DOM into two distinct layers:
-1.  **UI Layer (`div`)**: An absolute-positioned, non-blocking HTML layer containing the legend, tooltip, zoom slider, triangle toggle buttons, and error warnings.
-2.  **Canvas Layer (`svg`)**: The primary D3 SVG canvas, which utilizes a nested transform hierarchy to manage viewport centering and user-driven pan/zoom:
+The visual separates the DOM into two distinct, independently managed layers:
+1.  **UI Layer (`div`)**: Managed by the `UIController`. This absolute-positioned HTML layer contains interactive elements like the dynamically updating legend, custom tooltip, zoom slider, triangle toggle buttons, and schema validation warnings.
+2.  **Canvas Layer (`svg`)**: Managed by the `ViewportController`. This is the primary D3 SVG canvas, utilizing a nested transform hierarchy to manage viewport centering and bounds-constrained panning/zooming:
     * `centerGroup`: Translates the origin to `(width / 2, height / 2)`.
-    * `viewportGroup`: Applies pan translations (`translateX`, `translateY`) and scale (`zoomLevel`).
-    * `geometryGroup`: The root for all visual data components, cleared and rebuilt dynamically via `.transient-layer` classes during each update.
+    * `viewportGroup`: Applies pan translations (`translateX`, `translateY`) and scale (`zoomLevel`) derived from the UI state.
+    * `geometryGroup`: The root container for all SVG visual elements, wiped and rebuilt dynamically via `.transient-layer` groups during each paint.
 
 ### Update Loop Sequence
-When `update()` is invoked, the pipeline executes the following sequence:
-1.  **Data & Configuration Extraction**: Retrieves dimensions, active triangle configuration (from `TRIANGLE_CONFIGS`), and the current `VisualFormattingSettingsModel`.
-2.  **Schema Validation**: Checks if the required columns mapped in the Power BI dataset satisfy the `axes` array of the active triangle configuration. If missing, rendering aborts and an error prompt is displayed.
-3.  **Transient Layer Purge**: Selects and removes all elements with the `.transient-layer` class to prepare for a fresh paint.
-4.  **Drawing Passes**: Renders components in z-index order from back to front:
-    * **Regions**: Fills polygon boundaries based on vertex configurations.
-    * **Outline**: Draws the base polygon structure.
-    * **Axes**: Renders edges, directional arrows, tick marks, and axis labels.
-    * **Labels**: Calculates offsets and paints region identifiers with collision-preventing background rectangles.
-    * **Plots**: Extracts historical trajectories and plots sequential data points, drawing line connectors if the distance exceeds `GLOBAL_CONFIG.declutterThreshold`.
+When `update()` is invoked, the mediator executes the following sequence:
+1.  **Data & Configuration Extraction**: Retrieves viewport dimensions, the active `TriangleConfig` (1, 4, or 5), and populates the `VisualFormattingSettingsModel`.
+2.  **Schema Validation**: Verifies that the input data provides the specific gases required by the active triangle's `axes` configuration. If prerequisites are unmet, rendering halts, transient layers are cleared, and the `UIController` surfaces a missing data warning.
+3.  **Transient Layer Purge**: The `ViewportController` purges and regenerates empty `.transient-layer` groups (Regions, Outline, Axes, Labels, Plots) to ensure clean z-indexing.
+4.  **Decoupled Drawing Passes**: 
+    * `LegendRenderer`: Injects the HTML-based legend based on the active config and formatting settings.
+    * `GeometryRenderer`: Processes the static background geometry, drawing filled fault regions, the bounding polygon, axes with ticks/arrows, and textual region/prerequisite labels.
+    * `PlotRenderer`: Processes the historical time-series data, plotting trajectory lines and chronological data points, while attaching an `ITooltipHandler` adapter to bridge D3 mouse events to the HTML `UIController`.
 
 ### Interactivity & Viewport Constraints
-Pan and zoom events utilize strict bounds logic. The absolute maximum distance the canvas can be dragged is calculated relative to the viewport size and current zoom multiplier (`maxPanX` and `maxPanY`). X/Y translations are clamped to these coordinates to prevent the user from panning the visual completely off-screen.
+State is managed centrally via the `UIController` and pushed to the `ViewportController`. Pan and zoom events calculate strict boundary math: the absolute maximum distance the canvas can be dragged is determined relative to the viewport dimensions and current zoom multiplier (`maxPanX`, `maxPanY`). X/Y translations are clamped strictly to these bounds to prevent the user from losing the visual off-screen.
 
 ## 2. Mathematical Architecture & Geometry
 
 ### Polygon Generation
-The coordinate space is calculated via `createRegularPolygon`. It constructs an n-sided regular polygon using standard polar-to-cartesian conversions:
+The coordinate space is calculated via `createRegularPolygon` in `geometry.ts`. It constructs an n-sided regular polygon using standard polar-to-cartesian conversions:
 * Starts the first vertex at the 12 o'clock position by applying a `-PI / 2` starting angle offset.
 * Calculates subsequent vertices by rotating clockwise: `angle = -Math.PI / 2 + (i * 2 * Math.PI) / sides`.
 * Returns an array of `Point` interfaces defining the vertices relative to an origin of `(0, 0)`.
 
 ### Geometric Mapping (Barycentric to Cartesian)
 Gas records are mapped onto the 2D Cartesian plane using a generalized barycentric coordinate system via `barycentricToCartesian`:
-* Iterates through the ordered configuration axes to extract the raw values (`weights`).
+* Iterates through the ordered `axes` array provided by the active `TriangleConfig` to extract the raw values (`weights`).
 * Calculates the cartesian point by computing the weighted sum of the polygon's vertices: `x += (weight / total) * point.x` and `y += (weight / total) * point.y`.
 * If the sum of all weights is zero, it safely falls back to the origin `(0, 0)`.
 
@@ -48,35 +46,35 @@ The function `getPolygonEdges` derives the properties of the perimeter for rende
 ## 3. Data Normalization & Parsing
 
 ### Data Extraction
-The `parseData` extraction engine handles the Power BI `DataView`.
-* Dynamically maps the input columns by searching the `roles` dictionary against the `AxisConfig` required by the active triangle.
-* Constructs `ParsedDataPoint` objects associating chronologically sorted dates with n-dimensional `GasRecord` dictionaries.
+The `parseData` extraction engine handles the Power BI `DataView` dynamically.
+* Dynamically maps the input columns by searching the `roles` dictionary against the `AxisConfig` required by the active triangle, alongside extracting any extra measures passed into the `tooltips` bucket.
+* Constructs `ParsedDataPoint` objects associating chronologically sorted dates with n-dimensional `GasRecord` dictionaries and extended tooltip arrays.
 * Drops the rendering request by returning an empty array if any configured axis index is unresolved (`index === -1`).
 
 ### Normalization
-The `normalizeData` function processes n-dimensional gas datasets.
-* It computes the total sum of all parameters in the record.
-* If `total === 0`, it initializes all configured keys to `0`.
+The `normalizeData` utility processes the n-dimensional gas datasets.
+* It computes the total sum of all parameters in the individual record.
+* If `total === 0`, it initializes all keys to `0`.
 * Otherwise, it applies standard percentage normalization: `(input[key] / total) * 100`.
 
 ## 4. Fault Region Classification
-Unlike coordinate rendering, fault determination does not rely on geometric point-in-polygon calculations. Classification is executed via deterministic rule evaluation in `classifyFault`.
+Unlike coordinate rendering, fault determination does not rely on geometric point-in-polygon mapping. Classification utilizes a Strategy Pattern architecture evaluated through `classifyFaultWithSpecifications`.
 
-* The engine iterates linearly through the array of `RegionConfig` objects provided by the active configuration.
-* For each region, it evaluates an attached boolean programmatic function (`condition(data)`) against the *normalized* `GasRecord`.
-* The system operates on a "first match wins" strategy, returning the associated `FaultType` key immediately upon a `true` evaluation.
-* Visual boundaries (`vertices`) define the colored backgrounds, whereas these programmatic checks evaluate the raw data independent of rendering limits.
+* The engine fetches an array of `IFaultSpecification` objects corresponding to the active triangle via the `FaultSpecificationFactory`.
+* It iterates sequentially through these specific rule sets. For each specification, it evaluates the `isSatisfiedBy(data)` programmatic function against the *normalized* `GasRecord`.
+* The system operates on a deterministic "first match wins" strategy, immediately returning the `FaultType` (e.g., `PD`, `T1`, `DT`) upon a `true` evaluation. If no conditions pass, it returns `Unknown`.
+* Visual boundaries defined in `TriangleConfig` draw the colored SVG backgrounds, whereas these specification classes independently evaluate the raw data logic.
 
 ## 5. Data Mapping & Formatting
 
 ### Capability Definitions
 The input schema is defined in `capabilities.json`, specifying the following data roles:
 * **Grouping**: `date` (Chronological sorting index).
-* **Measures**: `ch4`, `c2h4`, `c2h2`, `h2`, `c2h6` (Gas concentration inputs).
+* **Measures**: `ch4`, `c2h4`, `c2h2`, `h2`, `c2h6` (Gas concentration inputs), and `tooltips` (Supplementary data for hover interactions).
 
 ### User Configuration Surface
-`settings.ts` bridges the properties object to user-configurable UI components.
-* **Legend (`legendText`)**: Contains a global visibility toggle (`show`) and string input definitions mapping configuration keys (e.g., `PD_text`) to custom labels.
-* **Segments (`regionColors`)**: Provides individual `ColorPicker` controls for every fault type (e.g., `PD`, `T1`, `DT`), coupled with a global transparency percentage controller.
-* **Connector (`pathSettings`)**: Toggles the trajectory lines between chronological points, adjusting thickness and color.
-* **Data Points (`pointSettings`)**: Differentiates the styling (Size, Color) between historical points and the most recent reading (Latest Point).
+`settings.ts` utilizes the modern `FormattingSettingsModel` to bridge properties to the user-configurable UI.
+* **Legend (`legendTextCard`)**: Contains a global visibility toggle (`show`) and string input definitions mapping configuration keys to custom user-defined text (e.g., overriding `PD_text`).
+* **Segments (`segmentsCard`)**: Provides individual `ColorPicker` controls for every distinct fault type (e.g., `PD`, `T1`, `DT`, `S`, `C`), coupled with a global transparency percentage controller.
+* **Connector (`connectorCard`)**: Toggles the chronological trajectory lines between historical points, adjusting thickness and hex colors.
+* **Data Points (`pointSettingsCard`)**: Differentiates the styling attributes (Size, Color) between historical coordinate plots and the most recent chronological reading (Latest Point).
